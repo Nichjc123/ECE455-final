@@ -12,6 +12,7 @@ release_times          = []
 schedulable            = True
 
 def main():
+    global task_set, release_times, preemptions, schedulable
     # for calculating hyperperiod
     periods  = []
     # Handling file input
@@ -45,6 +46,16 @@ def main():
     release_times.sort()
 
     for i in range(len(release_times)):
+        current_release = release_times[i]
+        next_time = release_times[i + 1]
+
+        release_new_tasks(current_time)
+
+        execute_tasks(current_time)
+
+        if not schedulable:
+            break
+
         # Check if any tasks could have been executed since last release time
             # if so, sort tasks by deadline and pick smallest to scheduler
             # update preemption list
@@ -53,6 +64,14 @@ def main():
             # continue until we have reached next release time
         
         # add any tasks to global state that should be released at this time
+
+    # Print results
+    if not schedulable:
+        print(0)
+        print()
+    else:
+        print(1)
+        print(','.join(map(str, preemptions)))
 
 
 if __name__ == "__main__":
