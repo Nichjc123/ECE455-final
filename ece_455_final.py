@@ -11,6 +11,39 @@ task_set               = [] # (execution time, period, deadline)
 release_times          = [] 
 schedulable            = True
 
+# Execute available tasks from start_time to end_time
+def execute_tasks(start_time, end_time):
+    global running_tasks, preemptions, currently_running_task, schedulable
+    current_time = start_time
+    time_gap = end_time - start_time
+
+    while time_gap > 0 and running_tasks:
+        running_tasks.sort(key=lambda x: x[2]) # Sort by deadline
+        task_idx, remaining, deadline = running_tasks[0]
+
+        # Check if we've missed this task's deadline
+        if current_time >= deadline:
+            schedulable = False
+            return
+
+        # Count preemption if switching to a new task
+        if currently_running_task != -1 and currently_running_task != task_idx:
+            preemptions[currently_running_task] += 1
+
+        currently_running_task = task_idx
+
+        # Determine execution time for this step
+        exec_time = min(time_gap, remaining)
+        current_time += exec_time
+        time_gap -= exec_time
+
+        if remaining <= exec_time:
+            # Task completes
+            running_tasks.pop(0)
+            currently_running_task = -1
+        else:
+            running_tasks[0][1] -= exec_time
+        
 # Release tasks that are due at this time
 def release_new_tasks(time):
     global running_tasks
@@ -58,10 +91,11 @@ def main():
 
         release_new_tasks(current_release)
 
-        execute_tasks(current_release)
+        execute_tasks(current_release, next_release)
 
-        if not schedulable:
-            break
+        for _, _, deadline in running_tasks:
+            if current_release > deadline:
+                break
 
         # Check if any tasks could have been executed since last release time
             # if so, sort tasks by deadline and pick smallest to scheduler
