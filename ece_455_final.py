@@ -47,11 +47,11 @@ def main():
 
     for i in range(len(release_times)):
         current_release = release_times[i]
-        next_time = release_times[i + 1]
+        next_release = release_times[i + 1] if i + 1 < len(release_times) else hyperperiod
 
-        release_new_tasks(current_time)
+        release_new_tasks(current_release)
 
-        execute_tasks(current_time)
+        execute_tasks(current_release)
 
         if not schedulable:
             break
