@@ -18,7 +18,7 @@ def execute_tasks(start_time, end_time):
     time_gap = end_time - start_time
 
     while time_gap > 0 and running_tasks:
-        running_tasks.sort(key=lambda x: x[2]) # Sort by deadline
+        running_tasks.sort(key=lambda x: (x[2], task_set[x[0]][2], x[0]))
         task_idx, remaining, deadline = running_tasks[0]
 
         # Check if we've missed this task's deadline
