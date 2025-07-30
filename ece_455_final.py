@@ -18,7 +18,7 @@ def execute_tasks(start_time, end_time):
     time_gap = end_time - start_time
 
     while time_gap > 0 and running_tasks:
-        running_tasks.sort(key=lambda x: (x[2], task_set[x[0]][2], x[0]))
+        running_tasks.sort(key=lambda x: (x[2], task_set[x[0]][2], x[0])) # Sort by deadline
         task_idx, remaining, deadline = running_tasks[0]
 
         # Check if we've missed this task's deadline
@@ -32,6 +32,8 @@ def execute_tasks(start_time, end_time):
 
         currently_running_task = task_idx
 
+        #print(f"ran task {task_idx} for {min(time_gap, remaining)} time units. Current time is: {current_time}")
+
         # Determine execution time for this step
         exec_time = min(time_gap, remaining)
         current_time += exec_time
@@ -43,6 +45,8 @@ def execute_tasks(start_time, end_time):
             currently_running_task = -1
         else:
             running_tasks[0][1] -= exec_time
+        
+        #print(running_tasks)
 
         # Check if task misses its deadline after running
         if current_time > deadline:
@@ -52,6 +56,7 @@ def execute_tasks(start_time, end_time):
 # Release tasks that are due at this time
 def release_new_tasks(time):
     global running_tasks
+    #print(f"Adding tasks at time '{time}")
     for i, (e, p, d) in enumerate(task_set):
         if time % p == 0:
             running_tasks.append([i, e, time + d])
@@ -89,8 +94,9 @@ def main():
             curr += task_set[i][1]
     
     release_times.sort()
+    #print(release_times)
 
-    for i in range(len(release_times)):
+    for i in range(len(release_times) - 1):
         current_release = release_times[i]
         next_release = release_times[i + 1] if i + 1 < len(release_times) else hyperperiod
 
@@ -102,9 +108,8 @@ def main():
             break
 
     # Final deadline check for remaining tasks
-    for _, _, deadline in running_tasks:
-        if hyperperiod > deadline:
-            schedulable = False
+    if running_tasks:
+        schedulable = False
 
     # Print results
     if not schedulable:
