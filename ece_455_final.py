@@ -11,6 +11,13 @@ task_set               = [] # (execution time, period, deadline)
 release_times          = [] 
 schedulable            = True
 
+# Release tasks that are due at this time
+def release_new_tasks(time):
+    global running_tasks
+    for i, (e, p, d) in enumerate(task_set):
+        if time % p == 0:
+            running_tasks.append([i, e, time + d])
+
 def main():
     global task_set, release_times, preemptions, schedulable
     # for calculating hyperperiod
