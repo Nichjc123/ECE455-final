@@ -1,20 +1,19 @@
 import sys
 import numpy as np
 
-# Storing set of task tuples 
-# (execution time, period, deadline)
-task_set = []
-
-# (time) - we can know which task(s) it corresponds to by seing if its divisible by period
-release_times = []
-
-# index of current task on CPU
+#########################
+# GLOBAL scheduler state
+########################
+running_tasks          = [] # (task index, remaining execution time, absolute deadline)
+preemptions            = [] 
 currently_running_task = -1
+task_set               = [] # (execution time, period, deadline)
+release_times          = [] 
+schedulable            = True
 
 def main():
     # for calculating hyperperiod
-    periods = []
-
+    periods  = []
     # Handling file input
     filename = sys.argv[1]
 
@@ -31,6 +30,8 @@ def main():
     # Create an array of scheduling points, not including task finishing (up to hyperperiod)
     hyperperiod = np.lcm.reduce(periods)
 
+    preemptions = [0] * len(task_set)
+
     # Find set of all release times
     points = set()
     for i in range(len(task_set)):
@@ -42,6 +43,16 @@ def main():
             curr += task_set[i][1]
     
     release_times.sort()
+
+    for i in range(len(release_times)):
+        # Check if any tasks could have been executed since last release time
+            # if so, sort tasks by deadline and pick smallest to scheduler
+            # update preemption list
+            # update our global state
+            # check to see if exceeded deadline during execution
+            # continue until we have reached next release time
+        
+        # add any tasks to global state that should be released at this time
 
 
 if __name__ == "__main__":
