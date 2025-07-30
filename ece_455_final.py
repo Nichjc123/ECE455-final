@@ -43,6 +43,11 @@ def execute_tasks(start_time, end_time):
             currently_running_task = -1
         else:
             running_tasks[0][1] -= exec_time
+
+        # Check if task misses its deadline after running
+        if current_time > deadline:
+            schedulable = False
+            return
         
 # Release tasks that are due at this time
 def release_new_tasks(time):
@@ -62,7 +67,7 @@ def main():
         with open(filename, 'r') as file:
             for line in file.readlines():
                 # Create tuple of (e, p, d) and add to task set
-                curr_task = tuple(map(int, line.strip().split(',')))
+                curr_task = tuple(map(float, line.strip().split(',')))
                 task_set.append(curr_task)
                 periods.append(int(curr_task[1]))
     except FileNotFoundError:
@@ -93,18 +98,13 @@ def main():
 
         execute_tasks(current_release, next_release)
 
-        for _, _, deadline in running_tasks:
-            if current_release > deadline:
-                break
+        if not schedulable:
+            break
 
-        # Check if any tasks could have been executed since last release time
-            # if so, sort tasks by deadline and pick smallest to scheduler
-            # update preemption list
-            # update our global state
-            # check to see if exceeded deadline during execution
-            # continue until we have reached next release time
-        
-        # add any tasks to global state that should be released at this time
+    # Final deadline check for remaining tasks
+    for _, _, deadline in running_tasks:
+        if hyperperiod > deadline:
+            schedulable = False
 
     # Print results
     if not schedulable:
