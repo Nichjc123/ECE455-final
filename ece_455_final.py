@@ -11,6 +11,23 @@ task_set               = [] # (execution time, period, deadline)
 release_times          = [] 
 schedulable            = True
 
+
+def compute_hyperperiod(periods):
+    # Determine scaling factor
+    scale = 1
+    for p in periods:
+        if not float(p).is_integer():
+            decimals = str(p).split('.')[-1]
+            scale = max(scale, 10 ** len(decimals))
+    
+    scaled = (np.array(periods) * scale).astype(int)
+    
+    # Compute LCM
+    hyper_scaled = np.lcm.reduce(scaled)
+    
+    # Scale back to original units
+    return hyper_scaled / scale
+
 # Execute available tasks from start_time to end_time
 def execute_tasks(start_time, end_time):
     global running_tasks, preemptions, currently_running_task, schedulable
@@ -32,7 +49,7 @@ def execute_tasks(start_time, end_time):
 
         currently_running_task = task_idx
 
-        #print(f"ran task {task_idx} for {min(time_gap, remaining)} time units. Current time is: {current_time}")
+        #print(f"running task {task_idx} for {min(time_gap, remaining)} time units. Current time is: {current_time}")
 
         # Determine execution time for this step
         exec_time = min(time_gap, remaining)
@@ -74,12 +91,12 @@ def main():
                 # Create tuple of (e, p, d) and add to task set
                 curr_task = tuple(map(float, line.strip().split(',')))
                 task_set.append(curr_task)
-                periods.append(int(curr_task[1]))
+                periods.append(float(curr_task[1]))
     except FileNotFoundError:
         print(f"File '{filename}' not found.")
 
     # Create an array of scheduling points, not including task finishing (up to hyperperiod)
-    hyperperiod = np.lcm.reduce(periods)
+    hyperperiod = compute_hyperperiod(periods)
 
     preemptions = [0] * len(task_set)
 
